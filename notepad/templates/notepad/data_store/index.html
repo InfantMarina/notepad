@@ -1,0 +1,209 @@
+{% extends 'notepad/data_store/base.html' %}
+{% load static %}
+{% block main-content %}
+
+<!-- Modal for edit -->
+<div class="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Edit your Note</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="edit_form" method="post" action="{% url 'notepad:index' %}<note_id>/edit">
+        {% csrf_token %}
+        <div class="modal-body">
+              <label for="title" class="title">Title</label>
+              <input type="text" id="title" name="title" class="border border-success rounded pl-1"><br>
+              <textarea id="body" name="body" rows="10" cols="48" class="border border-success rounded-right pl-2 pr-2"></textarea><br>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" data-dismiss="modal" class="btn btn-primary updating">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- modal for create -->
+<div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Create Here!</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="create_form" method="post" action="{% url 'notepad:index' %}/create">
+        {% csrf_token %}
+        <div class="modal-body">
+          <label for="title" class="title">Title</label>
+          <input type="text" id="title" name="title" class="border border-success rounded"><br><br>
+          <textarea id="body" name="body" rows="10" cols="118" class="border border-success rounded-right p-2"></textarea><br>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" data-dismiss="modal" class="btn btn-primary creating">Create</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for delete -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>Confirmation</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="content">
+          <h5>Are you sure?</h5>
+          <p class="text"></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        <button type="button" data-dismiss="modal" class="btn btn-danger deleting">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+    <div class="row pt-5">
+        <div class="col-11">
+            {% if data %}
+                {% if data.status == 'success' and data.message %}
+                    <div class="alerts alert alert-success" role="alert">
+                        {{data.message}}
+                        <span class="btn btn-primary" id="close_button">Close</span>
+                    </div>
+                {% elif data.status == 'failure' and data.message %}
+                    <div class="alerts alert alert-danger" role="alert">{{data.message}}</div>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div class="col-1">
+            <a data-toggle="modal" data-target="#exampleModal2" href="{% url 'notepad:index' %}create/" class="btn btn-success">Create</a>
+        </div>
+    </div>
+    <div class="row pt-5" id="notes-container">
+        {% if data %}
+            {% for item in data.store_obj %}
+                <div class="col col-sm-3 mb-4 note-item">
+                    <div class="card card-design">
+                        <div class="card-header">
+                            {{item.title}}
+                            <img data-toggle="modal" data-target="#exampleModal" src="{% static 'images/delete.svg' %}" alt="delete" width="23" height="23" style="float:right" data-id="{{item.id}}" data-title="{{item.title}}" class="image delete_btn">
+                            <img data-toggle="modal" data-target="#exampleModal1" src="{% static 'images/edit.svg' %}" alt="edit" width="23" height="23" data-id="{{item.id}}" data-title="{{item.title}}" data-body="{{item.body}}" style="float:right" class="image edit_btn">
+                        </div>
+                        <div class="card-body">
+                            <p>{{item.body|truncatewords:3}}</p>
+                            <footer class="blockquote-footer text-right pt-2">created on {{item.date}}</footer>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+{% block scriptblock %}
+    <script>
+       
+        // $(document).ready(function(){
+        //     // $(".alerts").fadeOut(1000,5000);
+        //     $("#close_button").click(function(e){
+        //         $(this).parent().hide();
+        //     });
+        // });
+        
+        function main_ajax(){
+          let note_element = `
+              <div class="col col-sm-3 mb-4 note-item">
+                  <div class="card card-design">
+                      <div class="card-header">
+                          <<item_title>>
+                          <img data-toggle="modal" data-target="#exampleModal" src="{% static 'images/delete.svg' %}" alt="delete" width="23" height="23" style="float:right" data-id="<<item_id>>" data-title="<<item_title>>" class="image delete_btn">
+                          <img data-toggle="modal" data-target="#exampleModal1" src="{% static 'images/edit.svg' %}" alt="edit" width="23" height="23" data-id="<<item_id>>" data-title="<<item_title>>" data-body="<<item_body>>" style="float:right" class="image">
+                      </div>
+                      <div class="card-body">
+                          <p><<item_body>></p>
+                          <footer class="blockquote-footer text-right pt-2">created on <<item_date>></footer>
+                      </div>
+                  </div>
+              </div>
+          `
+          $.ajax({
+              url:"http://localhost:8000/notepad/index",
+              type:"GET",
+              dataType:"text",
+          }).done(function(data){
+              $("#notes-container").html('');
+              $.each($.parseJSON(data)['store_obj'], function(index, value){
+                  var new_element = note_element.replace(/<<item_id>>/g,value['id']);
+                  new_element = new_element.replace(/<<item_title>>/g,value['title']);
+                  new_element = new_element.replace(/<<item_body>>/g,value['body']);
+                  new_element = new_element.replace(/<<item_date>>/g,value['date']);
+                  $("#notes-container").append(new_element);
+              });
+          });
+        }
+
+        $(document).ready(function(){
+          $(document).on("click",".delete_btn", function(){
+            let delete_id = $(this).data("id");
+            let title = $(this).data("title");
+            let new_text = title +' will be permanently deleted';
+            $(".text").text(new_text);
+            $(".deleting").on("click", function(){
+              $.ajax({
+                  url:"http://localhost:8000/notepad/index/"+delete_id+"/delete/",
+                  type:"GET",
+                  dataType:"text",
+              }).done(function(data){});
+              main_ajax()
+            });
+          }).on("click", ".edit_btn", function(){
+            var id = $(this).data("id");
+            var title = $(this).data("title");
+            var body = $(this).data("body");
+            let form = $("#edit_form");
+            form.attr('action',form.attr('action').replace('<note_id>',id));
+            $("#title").val(title);
+            $("#body").val(body);
+            $(".updating").click(function(){
+              var $csrf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
+              $.ajax({
+                url:"http://localhost:8000/notepad/index/"+id+"/edit/",
+                type:"POST",
+                dataType:"text",
+                data: {"title":$("#title").val(), "body": $("#body").val()},
+                headers: {"X-CSRFToken": $csrf_token},
+              }).done(function(data){});
+              main_ajax()
+            });
+          }).on("click", ".creating", function(){
+            var $csrf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
+            $.ajax({
+              url: "http://localhost:8000/notepad/index/create",
+              type: "POST",
+              dataType: "text",
+              headers: {"X-CSRFToken": $csrf_token},
+            }).done(function(data){
+              alert(data);
+            });
+          });
+        });
+    </script>
+{% endblock %}

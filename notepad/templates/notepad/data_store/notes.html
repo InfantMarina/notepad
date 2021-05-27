@@ -1,0 +1,56 @@
+{% extends 'notepad/data_store/base.html' %}
+{% load static %}
+{% block main-content %}
+
+<div class="container">
+    <div class="row pt-5">
+        <div class="col-12">
+            {% if data %}
+                {% if data.status == 'success' and data.message %}
+                    <div class="alerts alert alert-success" role="alert">{{data.message}}</div>
+                {% elif data.status == 'failure' and data.message %}
+                    <div class="alerts alert alert-danger" role="alert">{{data.message}}</div>
+                {% endif %}
+             {% endif %}
+        </div>
+    </div>
+    
+    {% if data.store_obj %}
+        <form method="POST" action="{% url 'notepad:index' %}{{data.store_obj.id}}/edit">
+    {% else %}
+        <form method="POST" action="{% url 'notepad:index' %}">
+    {% endif %}
+        {% csrf_token %}
+        <div class="row pt-5">
+            <div class="col-12 mb-5">
+                <label for="head" name="head" id="head" class="head">Title</label>
+                {% if data.store_obj %}
+                    <input type="text" id="head" name="head" class="border border-success rounded" value="{{data.store_obj.title}}">
+                {% else %}
+                    <input type="text" id="head" name="head" class="border border-success rounded" placeholder="Enter the title">
+                {% endif %}
+            </div>
+            <div class="col col-12">
+                {% if data.store_obj %}
+                    <textarea id="body" name="body" rows="10" cols="120" class="border border-success rounded-right" >{{data.store_obj.body}}</textarea>
+                {% else %}
+                    <textarea id="body" name="body" rows="10" cols="120" class="border border-success rounded-right" placeholder="Enter the text"></textarea>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row pt-5">
+            <div class="col-11"></div>
+            <div class="col-1">
+                <button type="submit" class= "saving btn btn-success">Save</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+{% block scriptblock %}
+    <script>
+        $(document).ready(function(){
+            $(".alerts").fadeOut(1000);
+        });
+    </script>
+{% endblock%}

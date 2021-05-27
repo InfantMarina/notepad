@@ -1,0 +1,42 @@
+{% extends 'notepad/data_store/base.html' %}
+{% load static %}
+{% block main-content %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'login/style.css' %}">
+<body>
+    <div id="login">
+        <div class="container w-75 mt-5">
+            <div id="login-row" class="row justify-content-center align-items-center">
+                <div id="login-column" class="col-md-6">
+                    <div id="login-box" class="col-md-12">
+                        <form id="login-form" class="form" action="{% url 'notepad:login' %}" method="post">
+                            {% csrf_token %}
+                            <h3 class="text-center text-info">Login</h3><br>
+                            <div class="message">
+                                {% if data %}
+                                    {{data.message}}
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="username" id="username" class="form-control" placeholder="phone number"><br>
+                            </div>
+                            <div class="form-group">
+                                <input type="password" name="password" id="password" class="form-control" placeholder="password">
+                            </div>
+                            <div class="form-group mt-5">
+                                <input type="submit" name="submit" class="btn btn-success btn-md" value="submit">
+                            </div>
+                            {% comment %}
+                            <div id="register-link" class="text-right pt-2" style="color: #4e342e;">New User
+                                <a href="{% url 'notepad:login' %}newuser/" class="text-info pl-3" style="text-decoration: none">Register here</a>
+                            </div>{% endcomment %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="{% static 'js/jquery.js' %}"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+{% endblock %}

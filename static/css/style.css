@@ -1,0 +1,43 @@
+.bar{
+  background-color: #6ab04c;
+}
+
+.title{
+  font-family: 'Kaushan Script', cursive;
+  padding:0px;
+}
+
+.intro{
+  text-align: center;
+  color:brown;
+}
+
+.btn{
+  /* background-color: #6ab04c; */
+  color:white;
+}
+
+/* index */
+.create{
+  float:left;
+}
+
+.card-design a:hover{
+  text-decoration: none;
+}
+
+.card-design a:link{
+  color:#795548;
+}
+
+.card-design .card-header{
+  background-color:#aed581;
+  color: #4e342e;
+  font-size: 22px;
+}
+
+/* notes.html */
+.title{
+  color:#4e342e;
+  font-size: larger;
+}
